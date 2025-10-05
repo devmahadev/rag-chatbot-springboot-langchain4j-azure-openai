@@ -37,7 +37,7 @@
 	</properties>
 	<dependencies>
 
-		<!-- Spring boot starters -->
+		<!-- Spring boot starters:  Core Spring MVC for web app -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
@@ -55,27 +55,30 @@
 			<artifactId>spring-boot-starter-webflux</artifactId>
 		</dependency>
 
-		<!-- Langchain4j -->
+		<!-- Langchain4j offers Springboot starter for seamless auto-configuration of AI services, RAG, tools and more -->
 		<dependency>
 			<groupId>dev.langchain4j</groupId>
 			<artifactId>langchain4j-spring-boot-starter</artifactId>
 			<version>${langchain4j.version}</version>
 		</dependency>
 
+		<!-- LangChain4j Spring Boot starter for seamless integration with Azure OpenAI.
+             It simplifies configuration and enables easy access to Azure-hosted OpenAI models
+             (like GPT-5) using Spring Boot's auto-configuration support. -->
 		<dependency>
 			<groupId>dev.langchain4j</groupId>
 			<artifactId>langchain4j-azure-open-ai-spring-boot-starter</artifactId>
 			<version>${langchain4j.version}</version>
 		</dependency>
 
-		<!-- LangChain4j integrates seamlessly with PGVector, allowing developers to store and query vector embeddings directly in PostgreSQL -->
+		<!-- LangChain4j provides seamless integration with PGVector, enables developers to efficiently store and query vector embeddings within PostgreSQL -->
 		<dependency>
 			<groupId>dev.langchain4j</groupId>
 			<artifactId>langchain4j-pgvector</artifactId>
 			<version>${langchain4j.version}</version>
 		</dependency>
 
-		<!-- LangChain4j Reactor Support for Flux -->
+		<!-- To enable token-by-token streaming with Flux<String> include the langchain4j-reactor module -->
 		<dependency>
 			<groupId>dev.langchain4j</groupId>
 			<artifactId>langchain4j-reactor</artifactId>
@@ -89,7 +92,7 @@
 			<scope>runtime</scope>
 		</dependency>
 
-		<!-- Docker Compose -->
+		<!-- Docker Compose: Automatically starts Docker Compose when the application runs -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-docker-compose</artifactId>
