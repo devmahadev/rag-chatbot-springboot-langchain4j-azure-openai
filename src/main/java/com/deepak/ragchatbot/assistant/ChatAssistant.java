@@ -12,7 +12,8 @@ import reactor.core.publisher.Flux;
 @AiService(
         wiringMode = AiServiceWiringMode.EXPLICIT,
         chatModel = "azureChatModel",
-        streamingChatModel = "azureStreamingChatModel"
+        streamingChatModel = "azureStreamingChatModel",
+        retrievalAugmentor = "retrievalAugmentor"
 )
 public interface ChatAssistant {
 

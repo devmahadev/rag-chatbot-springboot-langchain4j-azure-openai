@@ -42,7 +42,7 @@ public class AzureOpenAiConfig {
                 .endpoint(chatModelProperties.endpoint())
                 .apiKey(chatModelProperties.apiKey())
                 .deploymentName(chatModelProperties.deploymentName())
-                .temperature(0.0)
+                //.temperature(0.0)
                 .build();
     }
 
@@ -87,7 +87,7 @@ public class AzureOpenAiConfig {
                 .endpoint(streamingModelProperties.endpoint())
                 .apiKey(streamingModelProperties.apiKey())
                 .deploymentName(streamingModelProperties.deploymentName())
-                .temperature(0.0)
+                //.temperature(0.0)
                 .build();
     }
 }
