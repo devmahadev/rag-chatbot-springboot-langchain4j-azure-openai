@@ -1,0 +1,39 @@
+@startuml
+actor User
+participant RagChatbotController
+participant RagChatbotService
+participant EmbeddingGenerator
+participant EmbeddingStore
+participant ContentRetriever
+participant RetrievalAugmentor
+participant ChatModel
+
+== Upload ==
+User -> RagChatbotController: POST /api/load (file + message)
+
+== Ingest ==
+RagChatbotController -> RagChatbotService: saveDocument(file)
+RagChatbotService -> RagChatbotService: extractText(file)
+RagChatbotService -> EmbeddingGenerator: generateEmbeddings(text)
+EmbeddingGenerator -> EmbeddingStore: add(embeddings)
+
+== Retrieve ==
+RagChatbotController -> ContentRetriever: retrieve(query)
+ContentRetriever -> EmbeddingStore: similaritySearch(query)
+EmbeddingStore --> ContentRetriever: relevantSegments
+
+== Augment ==
+RagChatbotController -> RetrievalAugmentor: augment(message + retrievedSegments)
+note right of RetrievalAugmentor
+Example Augmented Prompt:
+"User asked: What is ACME-RAG-CHECK-42?
+Context:
+ACME-RAG-CHECK-42. This is just a RAG test."
+end note
+RetrievalAugmentor --> RagChatbotController: augmentedMessage
+
+== Chat ==
+RagChatbotController -> ChatModel: chat(augmentedMessage)
+ChatModel --> RagChatbotController: response
+RagChatbotController --> User: response (grounded answer)
+@enduml

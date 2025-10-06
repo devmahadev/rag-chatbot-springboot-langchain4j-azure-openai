@@ -1,0 +1,31 @@
+@startuml
+package "Controller Layer" {
+    [RagChatbotController]
+}
+
+package "Service Layer" {
+    [RagChatbotService]
+    [ChatAssistant]
+}
+
+package "RAG Components" {
+    [EmbeddingGenerator]
+    [EmbeddingStore<TextSegment>]
+    [ContentRetriever]
+    [RetrievalAugmentor]
+}
+
+package "LLM Integration" {
+    [ChatModel (Azure/OpenAI)]
+    [StreamingChatModel]
+}
+
+RagChatbotController --> RagChatbotService
+RagChatbotController --> ChatAssistant
+ChatAssistant --> RetrievalAugmentor
+RetrievalAugmentor --> ContentRetriever
+ContentRetriever --> EmbeddingStore
+RagChatbotService --> EmbeddingStore
+EmbeddingGenerator --> EmbeddingStore
+ChatAssistant --> ChatModel
+@enduml

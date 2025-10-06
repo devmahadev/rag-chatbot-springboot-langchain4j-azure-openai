@@ -1,0 +1,26 @@
+@startuml
+node "User Browser" {
+    [Web UI]
+}
+
+node "Spring Boot App" {
+    component RagChatbotController
+    component RagChatbotService
+    component ChatAssistant
+    component EmbeddingStore
+}
+
+node "Azure Cloud" {
+    [Azure OpenAI Service]
+}
+
+node "Database" {
+    [EmbeddingStore DB (Postgres/Vector DB)]
+}
+
+[Web UI] --> RagChatbotController
+RagChatbotController --> RagChatbotService
+RagChatbotService --> EmbeddingStore
+EmbeddingStore --> [EmbeddingStore DB (Postgres/Vector DB)]
+ChatAssistant --> [Azure OpenAI Service]
+@enduml

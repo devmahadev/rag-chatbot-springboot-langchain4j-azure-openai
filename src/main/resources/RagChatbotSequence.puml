@@ -1,0 +1,33 @@
+@startuml
+actor User
+participant RagChatbotController
+participant RagChatbotService
+participant EmbeddingGenerator
+participant EmbeddingStore
+participant ContentRetriever
+participant RetrievalAugmentor
+participant ChatModel
+
+== Upload ==
+User -> RagChatbotController: POST /api/load (file + message)
+
+== Ingest ==
+RagChatbotController -> RagChatbotService: saveDocument(file)
+RagChatbotService -> RagChatbotService: extractText(file)
+RagChatbotService -> EmbeddingGenerator: generateEmbeddings(text)
+EmbeddingGenerator -> EmbeddingStore: add(embeddings)
+
+== Retrieve ==
+RagChatbotController -> ContentRetriever: retrieve(query)
+ContentRetriever -> EmbeddingStore: similaritySearch(query)
+EmbeddingStore --> ContentRetriever: relevantSegments
+
+== Augment ==
+RagChatbotController -> RetrievalAugmentor: augment(message + context)
+RetrievalAugmentor --> RagChatbotController: augmentedMessage
+
+== Chat ==
+RagChatbotController -> ChatModel: chat(augmentedMessage)
+ChatModel --> RagChatbotController: response
+RagChatbotController --> User: response (grounded answer)
+@enduml
