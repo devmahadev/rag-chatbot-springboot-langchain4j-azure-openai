@@ -96,7 +96,11 @@ public class RagChatbotService {
                 directory.mkdirs();
             }
 
-            String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
+            var originalFileName = Optional.ofNullable(file.getOriginalFilename())
+                    .map(name -> name.replaceAll("[^a-zA-Z0-9\\.\\-_]", "_")) //Sanitization: Replaces unsafe characters in filenames.
+                    .orElse("uploaded_file");
+            var fileName = UUID.randomUUID() + "_" + originalFileName;
+
             Path path = Paths.get(UPLOAD_DIR, fileName);
             Files.copy(file.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
             return Optional.of(new UrlResource(path.toUri()));
