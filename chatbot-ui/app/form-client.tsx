@@ -43,7 +43,7 @@ export default function FormClient({
     <div className="shell">
 
 
-<div class="rag-info-container">
+<div className="rag-info-container">
   <p>
     <strong>Retrieval-Augmented Generation (RAG)</strong> is revolutionizing how we build intelligent applications by combining the reasoning power of Large Language Models (LLMs) with custom, domain-specific knowledge bases. This project demonstrates how to build a document-aware chatbot using:
   </p>
