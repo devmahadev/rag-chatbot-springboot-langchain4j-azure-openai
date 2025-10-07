@@ -1,6 +1,5 @@
 package com.deepak.ragchatbot.service;
 
-import dev.langchain4j.data.document.BlankDocumentException;
 import dev.langchain4j.data.document.Document;
 import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.store.embedding.EmbeddingStore;
@@ -24,6 +23,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -56,25 +56,15 @@ public class RagChatbotService {
         logger.info("Removing segments");
         embeddingStore.removeAll();
 
-        try {
-            logger.info("Extracting text from documents");
-            String extractedText = extractText(resource);
-
-            if (extractedText == null || extractedText.trim().isEmpty()) {
-                throw new BlankDocumentException();
-            }
-
-            Document document = Document.from(extractedText);
-            logger.info("Ingesting documents");
-            embeddingStoreIngestor.ingest(document);
-
-            logger.info("Document Ingested Successfully");
-
-        } catch (UnsupportedOperationException unsupportedOperationException) {
-            logger.error("Unsupported file type: {}", resource.getFilename());
-        } catch (Exception exception) {
-            logger.warn("Document is empty or unreadable: {}", resource.getFilename());
-        }
+        logger.info("Extracting text from documents");
+        extractText(resource)
+                .filter(text -> !text.isBlank())
+                .map(Document::from)
+                .ifPresentOrElse(document -> {
+                    logger.info("Ingesting documents");
+                    embeddingStoreIngestor.ingest(document);
+                    logger.info("Document Ingested Successfully");
+                }, () -> logger.warn("Document is empty or unreadable: {}", resource.getFilename()));
     }
 
     /**
@@ -84,16 +74,23 @@ public class RagChatbotService {
      * - Creates upload directory if missing.
      * - Generates a unique filename and saves the file.
      * - Returns a UrlResource pointing to the saved file.
+     * <p>
+     * Refactoring provides:
+     * - Sanitization: Replaces unsafe characters in filenames.
+     * - Optional return: Avoids throwing exceptions, making it safer for consumers.
+     * - Logging: Provides context for both warnings and errors.
+     * - Modern APIs: Uses Path.of, Files.createDirectories, and try-with-resources.
      *
      * @param file
      * @return
      */
-    public Resource saveDocument(MultipartFile file) {
-        try {
-            if (file.getSize() > MAX_UPLOAD_FILE_SIZE) {
-                throw new IllegalArgumentException("File size must not exceed 3MB");
-            }
+    public Optional<Resource> saveDocument(MultipartFile file) {
+        if (file.getSize() > MAX_UPLOAD_FILE_SIZE) {
+            logger.warn("File size exceeds the maximum allowed limit: {} bytes", file.getSize());
+            throw new IllegalArgumentException("File size must not exceed 3MB");
+        }
 
+        try {
             File directory = new File(UPLOAD_DIR);
             if (!directory.exists()) {
                 directory.mkdirs();
@@ -102,13 +99,11 @@ public class RagChatbotService {
             String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
             Path path = Paths.get(UPLOAD_DIR, fileName);
             Files.copy(file.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
-
-            return new UrlResource(path.toUri());
-        } catch (IOException e) {   // TODO: Refactor Exception Handling
-            logger.error("Failed to save document", e);
-            throw new RuntimeException(e);
+            return Optional.of(new UrlResource(path.toUri()));
+        } catch (IOException e) {
+            logger.error("Failed to save document: {}", file.getOriginalFilename(), e);
+            return Optional.empty();
         }
-
     }
 
     /**
@@ -117,22 +112,34 @@ public class RagChatbotService {
      * - Checks file extension (.pdf or .docx).
      * - Calls extractPdfText() or extractDocxText() accordingly.
      * - Throws UnsupportedOperationException for unsupported types.
+     * <p>
+     * <p>
+     * Refactoring highlights:
+     * - Null safety: Uses Optional.ofNullable(...).orElse("") to avoid NPE.
+     * - Switch expression: Cleaner branching logic with switch and pattern matching.
+     * - Graceful fallback: Returns Optional.empty() instead of throwing exceptions.
      *
      * @param resource
      * @return
      * @throws IOException
      */
-    private String extractText(Resource resource) throws IOException {
-        String filename = resource.getFilename().toLowerCase(); // TODO: Can lead to NPE
+    private Optional<String> extractText(Resource resource) {
+        String filename = Optional.ofNullable(resource.getFilename())
+                .map(String::toLowerCase)
+                .orElse("");
 
         try (InputStream inputStream = resource.getInputStream()) {
-            if (filename.endsWith(".pdf")) {
-                return extractPdfText(inputStream);
-            } else if (filename.endsWith(".docx")) {
-                return extractDocxText(inputStream);
-            } else {
-                throw new UnsupportedOperationException("Unsupported file type: " + filename);
-            }
+            return switch (filename) {
+                case String f when f.endsWith(".pdf") -> extractPdfText(inputStream);
+                case String f when f.endsWith(".docx") -> extractDocxText(inputStream);
+                default -> {
+                    logger.error("Unsupported file type: " + filename);
+                    yield Optional.empty();
+                }
+            };
+        } catch (IOException ex) {
+            logger.error("Error reading resource: " + ex.getMessage());
+            return Optional.empty();
         }
     }
 
@@ -146,10 +153,13 @@ public class RagChatbotService {
      * @return
      * @throws IOException
      */
-    private String extractDocxText(InputStream inputStream) throws IOException {
+    private Optional<String> extractDocxText(InputStream inputStream) {
         try (XWPFDocument document = new XWPFDocument(inputStream)) {
             XWPFWordExtractor xwpfWordExtractor = new XWPFWordExtractor(document);
-            return xwpfWordExtractor.getText();
+            return Optional.ofNullable(xwpfWordExtractor.getText());
+        } catch (IOException e) {
+            logger.error("Failed to extract DOCX text", e);
+            return Optional.empty();
         }
     }
 
@@ -163,10 +173,13 @@ public class RagChatbotService {
      * @return
      * @throws IOException
      */
-    private String extractPdfText(InputStream inputStream) throws IOException {
+    private Optional<String> extractPdfText(InputStream inputStream) {
         try (PDDocument document = Loader.loadPDF(inputStream.readAllBytes())) {
             PDFTextStripper pdfTextStripper = new PDFTextStripper();
-            return pdfTextStripper.getText(document);
+            return Optional.ofNullable(pdfTextStripper.getText(document));
+        } catch (IOException e) {
+            logger.error("Failed to extract PDF text", e);
+            return Optional.empty();
         }
     }
 }

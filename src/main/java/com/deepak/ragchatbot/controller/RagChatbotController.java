@@ -5,13 +5,14 @@ import com.deepak.ragchatbot.service.RagChatbotService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import reactor.core.publisher.Flux;
 
-import java.io.IOException;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api")
@@ -43,7 +44,14 @@ public class RagChatbotController {
 
         // 2. Save the uploaded file to directory
         logger.info("Uploading document.....");
-        Resource resource = ragChatbotService.saveDocument(file);
+        Optional<Resource> optionalResource = ragChatbotService.saveDocument(file);
+
+        if (optionalResource.isEmpty()) {
+            logger.warn("Failed to save document.");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Flux.just("Failed to process the uploaded document."));
+        }
+        Resource resource = optionalResource.get();
         logger.info("Document uploaded successfully.");
 
         // 3. Extract text segments from the document and store them for retrieval
@@ -54,7 +62,5 @@ public class RagChatbotController {
         // 4. Generate a chat response using uploaded document as context conversation
         logger.info("Generating contextual chat response");
         return ResponseEntity.ok(chatAssistant.chat(message));
-
-        //TODO: Add global exceptional handler
     }
 }
