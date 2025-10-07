@@ -8,6 +8,8 @@ participant ContentRetriever
 participant RetrievalAugmentor
 participant ChatModel
 
+note over User, Bob #FFAAAA:   Diagram by Deepak Hirenwal.
+
 == Upload ==
 User -> RagChatbotController: POST /api/context-chatbot (file + message)
 
