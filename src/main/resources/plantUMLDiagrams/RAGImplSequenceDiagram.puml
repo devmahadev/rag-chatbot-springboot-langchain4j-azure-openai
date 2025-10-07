@@ -9,7 +9,7 @@ participant RetrievalAugmentor
 participant ChatModel
 
 == Upload ==
-User -> RagChatbotController: POST /api/load (file + message)
+User -> RagChatbotController: POST /api/context-chatbot (file + message)
 
 == Ingest ==
 RagChatbotController -> RagChatbotService: saveDocument(file)
