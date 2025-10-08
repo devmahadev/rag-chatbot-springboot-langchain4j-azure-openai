@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -40,6 +41,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(UnsupportedOperationException.class)
     public ResponseEntity<ErrorResponse> handleUnsupportedOperationException(UnsupportedOperationException exception, WebRequest webRequest) {
         return buildErrorResponse(exception, HttpStatus.UNSUPPORTED_MEDIA_TYPE, webRequest);
+    }
+
+
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ResponseEntity<ErrorResponse> handleMaxUploadSizeExceeded(MaxUploadSizeExceededException exception, WebRequest webRequest) {
+        return buildErrorResponse(exception, HttpStatus.PAYLOAD_TOO_LARGE, webRequest);
     }
 
     @ExceptionHandler(Exception.class)
