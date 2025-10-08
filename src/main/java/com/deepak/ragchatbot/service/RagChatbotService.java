@@ -36,7 +36,10 @@ public class RagChatbotService {
 
     private final List<TextExtractor> extractors;
 
-    public RagChatbotService(EmbeddingStoreIngestor embeddingStoreIngestor, EmbeddingStore<TextSegment> embeddingStore, List<TextExtractor> extractors) {
+    public RagChatbotService(
+            EmbeddingStoreIngestor embeddingStoreIngestor,
+            EmbeddingStore<TextSegment> embeddingStore,
+            List<TextExtractor> extractors) {
         this.embeddingStoreIngestor = embeddingStoreIngestor;
         this.embeddingStore = embeddingStore;
         this.extractors = extractors;
@@ -52,16 +55,16 @@ public class RagChatbotService {
      *
      * @param resource
      */
-    public void saveSegments(Resource resource) {
-        logger.info("Removing segments");
+    public void saveSegments(Resource resource) throws IOException {
+        logger.info("Removing existing segments from embedding store");
         embeddingStore.removeAll();
 
-        logger.info("Extracting text from documents");
+        logger.info("Extracting text from document: {}", resource.getFilename());
         extractText(resource)
                 .filter(text -> !text.isBlank())
                 .map(Document::from)
                 .ifPresentOrElse(document -> {
-                    logger.info("Ingesting documents");
+                    logger.info("Ingesting document into embedding store");
                     embeddingStoreIngestor.ingest(document);
                     logger.info("Document Ingested Successfully");
                 }, () -> logger.warn("Document is empty or unreadable: {}", resource.getFilename()));
@@ -84,30 +87,31 @@ public class RagChatbotService {
      * @param file
      * @return
      */
-    public Optional<Resource> saveDocument(MultipartFile file) {
+    public Resource saveDocument(MultipartFile file) throws IOException {
         if (file.getSize() > MAX_UPLOAD_FILE_SIZE) {
             logger.warn("File size exceeds the maximum allowed limit: {} bytes", file.getSize());
             throw new IllegalArgumentException("File size must not exceed 3MB");
         }
 
-        try {
-            File directory = new File(UPLOAD_DIR);
-            if (!directory.exists()) {
-                directory.mkdirs();
-            }
-
-            var originalFileName = Optional.ofNullable(file.getOriginalFilename())
-                    .map(name -> name.replaceAll("[^a-zA-Z0-9\\.\\-_]", "_")) //Sanitization: Replaces unsafe characters in filenames.
-                    .orElse("uploaded_file");
-            var fileName = UUID.randomUUID() + "_" + originalFileName;
-
-            Path path = Paths.get(UPLOAD_DIR, fileName);
-            Files.copy(file.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
-            return Optional.of(new UrlResource(path.toUri()));
-        } catch (IOException e) {
-            logger.error("Failed to save document: {}", file.getOriginalFilename(), e);
-            return Optional.empty();
+        File directory = new File(UPLOAD_DIR);
+        if (!directory.exists()) {
+            Files.createDirectories(directory.toPath());
         }
+
+        var originalFileName = Optional.ofNullable(file.getOriginalFilename())
+                .map(name -> name.replaceAll("[^a-zA-Z0-9\\.\\-_]", "_")) //Sanitization: Replaces unsafe characters in filenames.
+                .orElse("uploaded_file");
+
+        var fileName = UUID.randomUUID() + "_" + originalFileName;
+        Path path = Paths.get(UPLOAD_DIR, fileName);
+
+
+        try (InputStream inputStream = file.getInputStream()) {
+            Files.copy(inputStream, path, StandardCopyOption.REPLACE_EXISTING);
+        }
+
+        logger.info("File saved successfully: {}", path.toAbsolutePath());
+        return new UrlResource(path.toUri());
     }
 
     /**
@@ -127,7 +131,7 @@ public class RagChatbotService {
      * @return
      * @throws IOException
      */
-    public Optional<String> extractText(Resource resource) {
+    public Optional<String> extractText(Resource resource) throws IOException {
         String filename = Optional.ofNullable(resource.getFilename())
                 .map(String::toLowerCase)
                 .orElse("");
@@ -138,9 +142,6 @@ public class RagChatbotService {
                     .findFirst()
                     .map(extractor -> extractor.extract(inputStream))
                     .orElseThrow(() -> new UnsupportedOperationException("Unsupported file type: " + filename));
-        } catch (IOException ex) {
-            logger.error("Error reading resource: " + ex.getMessage());
-            return Optional.empty();
         }
     }
 }

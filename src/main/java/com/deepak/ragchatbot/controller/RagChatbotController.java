@@ -5,14 +5,13 @@ import com.deepak.ragchatbot.service.RagChatbotService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import reactor.core.publisher.Flux;
 
-import java.util.Optional;
+import java.io.IOException;
 
 @RestController
 @RequestMapping("/api")
@@ -34,7 +33,7 @@ public class RagChatbotController {
 
     @PostMapping(value = "/context-chatbot", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Flux<String>> load(@RequestParam(defaultValue = "What is the content of the document?") String message,
-                             @RequestParam(value = "file", required = false) MultipartFile file) {
+                             @RequestParam(value = "file", required = false) MultipartFile file) throws IOException {
 
         // 1. File Validation: if no file is uploaded then proceed with regular chat model
         if (file == null || file.isEmpty()) {
@@ -44,14 +43,9 @@ public class RagChatbotController {
 
         // 2. Save the uploaded file to directory
         logger.info("Uploading document.....");
-        Optional<Resource> optionalResource = ragChatbotService.saveDocument(file);
+        Resource optionalResource = ragChatbotService.saveDocument(file);
 
-        if (optionalResource.isEmpty()) {
-            logger.warn("Failed to save document.");
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Flux.just("Failed to process the uploaded document."));
-        }
-        Resource resource = optionalResource.get();
+        Resource resource = optionalResource;
         logger.info("Document uploaded successfully.");
 
         // 3. Extract text segments from the document and store them for retrieval
