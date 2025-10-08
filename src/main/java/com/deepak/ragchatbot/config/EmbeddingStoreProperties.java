@@ -1,6 +1,6 @@
 package com.deepak.ragchatbot.config;
 
-import org.springframework.boot.context.properties.ConfigurationProperties;
+import module spring.boot;
 
 @ConfigurationProperties(prefix = "embedding.store")
 public record EmbeddingStoreProperties(

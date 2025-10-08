@@ -75,7 +75,7 @@ class ContextChatbotE2ETest {
         String body = String.join("", result.getResponseBody().collectList().block());
 
         // 4) Assert the final body contains the token (context was injected)
-        System.out.println("Here is the body..........:" + body);
+        IO.println("Here is the body..........:" + body);
         // Here is the body..........:ACME-RAG-CHECK-42: according to the information you gave, it is "just a RAG test.
         // "What that means and why it matters:- "RAG" usually stands for Retrieval-Augmented Generation: systems that
         // retrieve relevant documents or snippets and use them to ground a generative model’s responses.

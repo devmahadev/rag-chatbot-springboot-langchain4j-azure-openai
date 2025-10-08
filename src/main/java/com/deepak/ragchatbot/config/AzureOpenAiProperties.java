@@ -1,9 +1,7 @@
 package com.deepak.ragchatbot.config;
 
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-
+import module jakarta.validation;
+import module spring.boot;
 
 /** One root + nested records
  * Keeps all Azure OpenAI configuration in one place

@@ -1,18 +1,16 @@
 package com.deepak.ragchatbot.controller;
 
-import com.deepak.ragchatbot.assistant.ChatAssistant;
-import com.deepak.ragchatbot.service.RagChatbotService;
+
+import module spring.core;
+import module spring.web;
+import module java.base;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.io.Resource;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 import reactor.core.publisher.Flux;
+import com.deepak.ragchatbot.assistant.ChatAssistant;
+import com.deepak.ragchatbot.service.RagChatbotService;
 
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api")

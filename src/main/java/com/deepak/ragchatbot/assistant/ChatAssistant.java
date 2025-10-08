@@ -1,10 +1,9 @@
 package com.deepak.ragchatbot.assistant;
 
+import module langchain4j.core;
+import module langchain4j.spring.boot.starter;
 import dev.langchain4j.service.SystemMessage;
-import dev.langchain4j.service.spring.AiService;
-import dev.langchain4j.service.spring.AiServiceWiringMode;
 import reactor.core.publisher.Flux;
-
 
 /** The @AiService scanner uses its own wiring rules and errors when it sees multiple candidates—hence we used wiringMode = EXPLICIT there.
  * For regular Spring injection (like RagAutoConfig’s method parameter), @Primary is the standard resolution mechanism.

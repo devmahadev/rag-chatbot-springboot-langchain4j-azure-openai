@@ -1,14 +1,13 @@
 package com.deepak.ragchatbot.config;
 
-import dev.langchain4j.data.segment.TextSegment;
+import module langchain4j.core;
+import module langchain4j.pgvector;
+import module spring.context;
+import module spring.boot;
+
 import dev.langchain4j.memory.chat.ChatMemoryProvider;
 import dev.langchain4j.memory.chat.MessageWindowChatMemory;
-import dev.langchain4j.model.embedding.EmbeddingModel;
-import dev.langchain4j.store.embedding.EmbeddingStore;
-import dev.langchain4j.store.embedding.pgvector.PgVectorEmbeddingStore;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+
 
 @Configuration
 @EnableConfigurationProperties({EmbeddingStoreProperties.class})

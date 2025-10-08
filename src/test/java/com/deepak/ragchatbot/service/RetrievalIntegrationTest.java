@@ -58,7 +58,7 @@ class RetrievalIntegrationTest {
                 .map(c -> c.textSegment().text())
                 .reduce("", (a, b) -> a + "\n" + b);
 
-        //System.out.println("Full Response: " + concatenated);
+        IO.println("Full Response: " + concatenated);
         assertThat(concatenated).contains("ACME-RAG-CHECK-42");
     }
 }

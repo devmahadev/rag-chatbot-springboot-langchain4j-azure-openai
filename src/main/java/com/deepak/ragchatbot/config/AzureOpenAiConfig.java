@@ -1,15 +1,9 @@
 package com.deepak.ragchatbot.config;
 
-import dev.langchain4j.model.azure.AzureOpenAiChatModel;
-import dev.langchain4j.model.azure.AzureOpenAiEmbeddingModel;
-import dev.langchain4j.model.azure.AzureOpenAiStreamingChatModel;
-import dev.langchain4j.model.chat.ChatModel;
-import dev.langchain4j.model.chat.StreamingChatModel;
-import dev.langchain4j.model.embedding.EmbeddingModel;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
+import module langchain4j.core;
+import module spring.context;
+import module spring.boot;
+import module langchain4j.azure.open.ai;
 
 @Configuration
 @EnableConfigurationProperties(AzureOpenAiProperties.class)
