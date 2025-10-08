@@ -1,14 +1,11 @@
 package com.deepak.ragchatbot.service;
 
+import com.deepak.ragchatbot.service.extractor.TextExtractor;
 import dev.langchain4j.data.document.Document;
 import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.store.embedding.EmbeddingStore;
 import dev.langchain4j.store.embedding.EmbeddingStoreIngestor;
-import org.apache.pdfbox.Loader;
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.text.PDFTextStripper;
-import org.apache.poi.xwpf.extractor.XWPFWordExtractor;
-import org.apache.poi.xwpf.usermodel.XWPFDocument;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
@@ -23,6 +20,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -36,10 +34,12 @@ public class RagChatbotService {
     private final EmbeddingStoreIngestor embeddingStoreIngestor;
     private final EmbeddingStore<TextSegment> embeddingStore;
 
+    private final List<TextExtractor> extractors;
 
-    public RagChatbotService(EmbeddingStoreIngestor embeddingStoreIngestor, EmbeddingStore<TextSegment> embeddingStore) {
+    public RagChatbotService(EmbeddingStoreIngestor embeddingStoreIngestor, EmbeddingStore<TextSegment> embeddingStore, List<TextExtractor> extractors) {
         this.embeddingStoreIngestor = embeddingStoreIngestor;
         this.embeddingStore = embeddingStore;
+        this.extractors = extractors;
     }
 
     /**
@@ -127,62 +127,19 @@ public class RagChatbotService {
      * @return
      * @throws IOException
      */
-    private Optional<String> extractText(Resource resource) {
+    public Optional<String> extractText(Resource resource) {
         String filename = Optional.ofNullable(resource.getFilename())
                 .map(String::toLowerCase)
                 .orElse("");
 
         try (InputStream inputStream = resource.getInputStream()) {
-            return switch (filename) {
-                case String f when f.endsWith(".pdf") -> extractPdfText(inputStream);
-                case String f when f.endsWith(".docx") -> extractDocxText(inputStream);
-                default -> {
-                    logger.error("Unsupported file type: " + filename);
-                    yield Optional.empty();
-                }
-            };
+            return extractors.stream()
+                    .filter(extractor -> extractor.supports(filename))
+                    .findFirst()
+                    .map(extractor -> extractor.extract(inputStream))
+                    .orElseThrow(() -> new UnsupportedOperationException("Unsupported file type: " + filename));
         } catch (IOException ex) {
             logger.error("Error reading resource: " + ex.getMessage());
-            return Optional.empty();
-        }
-    }
-
-    /**
-     * Extracts text from a DOCX file.
-     * Steps:
-     * - Loads the DOCX into XWPFDocument.
-     * - Uses XWPFWordExtractor to get text content.
-     *
-     * @param inputStream
-     * @return
-     * @throws IOException
-     */
-    private Optional<String> extractDocxText(InputStream inputStream) {
-        try (XWPFDocument document = new XWPFDocument(inputStream)) {
-            XWPFWordExtractor xwpfWordExtractor = new XWPFWordExtractor(document);
-            return Optional.ofNullable(xwpfWordExtractor.getText());
-        } catch (IOException e) {
-            logger.error("Failed to extract DOCX text", e);
-            return Optional.empty();
-        }
-    }
-
-    /**
-     * Extracts text from a PDF file.
-     * Steps:
-     * - Loads PDF using PDFBox Loader.
-     * - Uses PDFTextStripper to extract text.
-     *
-     * @param inputStream
-     * @return
-     * @throws IOException
-     */
-    private Optional<String> extractPdfText(InputStream inputStream) {
-        try (PDDocument document = Loader.loadPDF(inputStream.readAllBytes())) {
-            PDFTextStripper pdfTextStripper = new PDFTextStripper();
-            return Optional.ofNullable(pdfTextStripper.getText(document));
-        } catch (IOException e) {
-            logger.error("Failed to extract PDF text", e);
             return Optional.empty();
         }
     }
