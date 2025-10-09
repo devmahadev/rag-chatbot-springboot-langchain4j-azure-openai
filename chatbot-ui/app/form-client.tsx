@@ -1,4 +1,3 @@
-// app/FormClient.tsx
 "use client";
 
 import * as React from "react";
@@ -37,37 +36,46 @@ export default function FormClient({
 }: {
   action: (state: LoadState, formData: FormData) => Promise<LoadState>;
 }) {
-  const [state, formAction] = useActionState(action, initialState);
+  const [state, setState] = React.useState<LoadState>(initialState);
+  const [message, setMessage] = React.useState("");
+  const [file, setFile] = React.useState<File | null>(null);
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    const formData = new FormData();
+    formData.append("message", message);
+    if (file) {
+      formData.append("file", file);
+    }
+
+    const result = await action(state, formData);
+    setState(result);
+  };
 
   return (
     <div className="shell">
-
-
-<div className="rag-info-container">
-  <p>
-    <strong>Retrieval-Augmented Generation (RAG)</strong> is revolutionizing how we build intelligent applications by combining the reasoning power of Large Language Models (LLMs) with custom, domain-specific knowledge bases. This project demonstrates how to build a document-aware chatbot using:
-  </p>
-
-  <ul>
-    <li>Spring Boot for scalable backend architecture</li>
-    <li>LangChain4j for agentic AI orchestration</li>
-    <li>Azure OpenAI for embedding and chat completion</li>
-    <li>Vector stores for semantic search and retrieval</li>
-  </ul>
-
-  <p>
-    The chatbot can ingest documents (PDF, DOCX), extract meaningful content, and answer user queries using context-aware responses powered by RAG.
-  </p>
-
-  <h3>Prerequisites:</h3>
-  <ul>
-    <li>Java 25</li>
-    <li>Maven</li>
-    <li>Docker Compose</li>
-    <li>Azure OpenAI access (embedding + chat models)</li>
-  </ul>
-</div>
-
+      <div className="rag-info-container">
+        <p>
+          <strong>Retrieval-Augmented Generation (RAG)</strong> is revolutionizing how we build intelligent applications by combining the reasoning power of Large Language Models (LLMs) with custom, domain-specific knowledge bases. This project demonstrates how to build a document-aware chatbot using:
+        </p>
+        <ul>
+          <li>Spring Boot for scalable backend architecture</li>
+          <li>LangChain4j for agentic AI orchestration</li>
+          <li>Azure OpenAI for embedding and chat completion</li>
+          <li>Vector stores for semantic search and retrieval</li>
+        </ul>
+        <p>
+          The chatbot can ingest documents (PDF, DOCX), extract meaningful content, and answer user queries using context-aware responses powered by RAG.
+        </p>
+        <h3>Prerequisites:</h3>
+        <ul>
+          <li>Java 25</li>
+          <li>Maven</li>
+          <li>Docker Compose</li>
+          <li>Azure OpenAI access (embedding + chat models)</li>
+        </ul>
+      </div>
 
       <header className="header">
         <h1 className="title">Upload a document and ask a question</h1>
@@ -77,7 +85,7 @@ export default function FormClient({
       </header>
 
       <section className="card">
-        <form action={formAction} className="form" noValidate>
+        <form onSubmit={handleSubmit} className="form" noValidate>
           <div className="field">
             <label className="label" htmlFor="message">
               Message
@@ -89,6 +97,8 @@ export default function FormClient({
               rows={4}
               placeholder="What is the content of the document?"
               required
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
             />
             <p className="help">Be specific to get the best answer.</p>
           </div>
@@ -97,7 +107,13 @@ export default function FormClient({
             <label className="label" htmlFor="file">
               File (optional)
             </label>
-            <input className="input file" id="file" name="file" type="file" />
+            <input
+              className="input file"
+              id="file"
+              name="file"
+              type="file"
+              onChange={(e) => setFile(e.target.files?.[0] || null)}
+            />
             <p className="help">Max ~25 MB. We’ll only use it to answer your question.</p>
           </div>
 
