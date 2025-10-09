@@ -43,8 +43,11 @@ export default function AboutPage() {
         {/* Bio */}
         <section className="mb-10 bg-card p-6 rounded-lg shadow-md animate-fadeIn">
           <p className="text-lg leading-relaxed text-card-foreground">
-            Hello! I'm a passionate developer exploring the world of <strong>Langchain4j</strong> and AI integrations.
-            I enjoy building intuitive user interfaces, experimenting with new technologies, and solving real-world problems through code.
+            Hello! I'm a passionate <strong>Solution Architect and Software Architect</strong> with a developer's mindset,
+            deeply engaged in exploring the capabilities of <strong>LangChain4j</strong>, agentic AI systems, and enterprise-grade AI integrations.
+            I thrive on designing scalable architectures, orchestrating intelligent workflows, and building intuitive user interfaces that bridge human interaction with machine intelligence.
+            My work blends strategic system thinking with hands-on experimentation—whether it's integrating LLMs into microservices,
+            optimizing developer experience, or solving real-world problems through clean, maintainable code.
           </p>
         </section>
 
