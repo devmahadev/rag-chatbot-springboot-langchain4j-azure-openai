@@ -1,17 +1,23 @@
 # rag-chatbot-springboot-langchain4j-azure-openai
 
-**Retrieval-Augmented Generation (RAG)** is revolutionizing how we build intelligent applications by combining the reasoning power of Large Language Models (LLMs) with custom, domain-specific knowledge bases. This project demonstrates how to build a document-aware chatbot using:
+**Retrieval-Augmented Generation (RAG)** is revolutionizing how we build intelligent applications by combining the reasoning power of Large Language Models (LLMs) with custom, 
+domain-specific knowledge bases. This project demonstrates how to build a document-aware chatbot using:
 
 - Spring Boot for scalable backend architecture
 - LangChain4j for agentic AI orchestration
 - Azure OpenAI for embedding and chat completion
 - Vector stores for semantic search and retrieval
+- Next.js project bootstrapped with create-next-app
 
 The chatbot can ingest documents (PDF, DOCX), extract meaningful content, and answer user queries using context-aware responses powered by RAG.
 
+![Application-UI](/src/main/resources/images/homepage.jpg "Application Home Page")
+![Application-UI](/src/main/resources/images/aboutpage.jpg "Application About Page")
+
+
 ### Prerequisites:
 - Java 25,  Maven,  Docker Compose, Azure OpenAI access (embedding + chat models)
-
+- Next.js, React
 Key Features
 
 * ✅ Automatic dependency injection using @AiService
@@ -26,7 +32,6 @@ Key Features
 3. Go through LangChain4j dependencies to pom.xml:
 4. Configure your language model (e.g., Azure OpenAi) and embedding store.
 5. Look at how the RagChatbotService interface with the @AiService annotation.
-
 
 ### **AI Chat Service Interface**
 Overview
@@ -85,10 +90,9 @@ This annotation significantly simplifies the setup process, allowing developers 
 
 ### RAG Workflow
 
-![RAG Workflow](/src/main/resources/plantUMLDiagrams/RAGImplSequenceDiagram.png "This is a sample image.")
+![RAG Workflow](/src/main/resources/plantUMLDiagrams/RAGImplSequenceDiagram.png "RAG Workflows")
 
 
-Here’s a rephrased and more polished version of your explanation of how RAG works in your implementation:
 
 ---
 ## 🔍 How RAG Works in This Implementation
