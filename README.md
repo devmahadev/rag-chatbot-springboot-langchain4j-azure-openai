@@ -13,6 +13,7 @@ The chatbot can ingest documents (PDF, DOCX), extract meaningful content, and an
 
 ![Application-UI](/src/main/resources/images/homepage.jpg "Application Home Page")
 ![Application-UI](/src/main/resources/images/aboutpage.jpg "Application About Page")
+![Application-UI](/src/main/resources/images/vector_emb.jpg "Vector Embeddings in DB")
 
 
 ### Prerequisites:
