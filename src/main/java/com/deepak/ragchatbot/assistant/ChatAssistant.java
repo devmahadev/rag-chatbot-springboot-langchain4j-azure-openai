@@ -10,10 +10,10 @@ import reactor.core.publisher.Flux;
  * For regular Spring injection (like RagAutoConfig’s method parameter), @Primary is the standard resolution mechanism.
  */
 @AiService(
-        wiringMode = AiServiceWiringMode.EXPLICIT,
-        chatModel = "azureChatModel",
-        streamingChatModel = "azureStreamingChatModel",
-        retrievalAugmentor = "retrievalAugmentor"
+        //wiringMode = AiServiceWiringMode.EXPLICIT
+        //chatModel = "azureChatModel",
+        //streamingChatModel = "azureStreamingChatModel",
+        //retrievalAugmentor = "retrievalAugmentor"
 )
 public interface ChatAssistant {
 
