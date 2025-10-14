@@ -41,12 +41,7 @@ The AiChatService interface defines the contract for an AI-powered chatbot servi
 It is annotated with @AiService, a powerful annotation that streamlines the configuration of AI components by automatically injecting essential dependencies.
 
 ```
-@AiService(
-        wiringMode = AiServiceWiringMode.EXPLICIT,
-        chatModel = "azureChatModel",
-        streamingChatModel = "azureStreamingChatModel",
-        retrievalAugmentor = "retrievalAugmentor"
-)
+@AiService
 public interface ChatAssistant {
 
     /*  Set clear priorities for Assistant
